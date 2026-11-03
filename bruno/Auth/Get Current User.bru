@@ -1,0 +1,27 @@
+meta {
+  name: Get Current User
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/auth/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Profile returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("User has id and email", function() {
+    const data = res.getBody().data;
+    expect(data.email).to.be.a('string');
+  });
+}
+

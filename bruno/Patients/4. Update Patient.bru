@@ -1,0 +1,29 @@
+meta {
+  name: Update Patient
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/patients/{{patientId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "condition": "Hypertension (Stage 1)",
+    "notes": "Patient reports improved sleep and diet"
+  }
+}
+
+tests {
+  test("Update patient returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

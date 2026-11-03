@@ -1,0 +1,32 @@
+meta {
+  name: Get Analytics & Statistics
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/dashboard/analytics
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Dashboard analytics returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Analytics contains summary, patientsPerDoctor, dateBasedStats", function() {
+    const data = res.getBody().data;
+    expect(data).to.have.property('summary');
+    expect(data.summary).to.have.property('totalDoctors');
+    expect(data.summary).to.have.property('totalPatients');
+    expect(data).to.have.property('patientsPerDoctor');
+    expect(data).to.have.property('dateBasedStats');
+    expect(data).to.have.property('conditionDistribution');
+  });
+}
+

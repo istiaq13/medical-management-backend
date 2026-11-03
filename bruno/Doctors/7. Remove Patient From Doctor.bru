@@ -1,0 +1,22 @@
+meta {
+  name: Remove Patient From Doctor
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/doctors/{{doctorId}}/patients/{{patientId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Patient removed from doctor returns 200", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}
+

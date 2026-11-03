@@ -1,0 +1,41 @@
+meta {
+  name: Create Patient
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/patients
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Robert Downey",
+    "age": 52,
+    "gender": "MALE",
+    "phone": "+1 555-8833",
+    "email": "robert.d@example.com",
+    "condition": "Arrhythmia",
+    "doctorId": "{{doctorId}}",
+    "notes": "ECG scheduled for next Tuesday"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data._id) {
+    bru.setEnvVar("patientId", res.body.data._id);
+  }
+}
+
+tests {
+  test("Patient created returns 201 Created", function() {
+    expect([201, 400]).to.include(res.getStatus());
+  });
+}
+

@@ -1,0 +1,22 @@
+meta {
+  name: Delete Doctor
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/doctors/{{doctorId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Delete doctor response status", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}
+

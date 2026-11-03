@@ -1,0 +1,23 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:5000/health
+  body: none
+  auth: none
+}
+
+tests {
+  test("Health check returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Database status is connected", function() {
+    const body = res.getBody();
+    expect(body.status).to.equal('ok');
+    expect(body.database.status).to.equal('connected');
+  });
+}

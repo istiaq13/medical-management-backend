@@ -1,0 +1,40 @@
+meta {
+  name: Add Patient Under Doctor
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/doctors/{{doctorId}}/patients
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Jane Cooper",
+    "age": 32,
+    "gender": "FEMALE",
+    "phone": "+1 555-7766",
+    "email": "jane.cooper@example.com",
+    "condition": "Chronic Fatigue Syndrome",
+    "notes": "Follow up in 2 weeks"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data._id) {
+    bru.setEnvVar("patientId", res.body.data._id);
+  }
+}
+
+tests {
+  test("Patient created under doctor with 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+

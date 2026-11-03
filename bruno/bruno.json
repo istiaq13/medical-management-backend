@@ -1,0 +1,10 @@
+{
+  "version": "1",
+  "name": "Doctor Tracker API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
+

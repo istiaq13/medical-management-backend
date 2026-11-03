@@ -1,0 +1,46 @@
+meta {
+  name: List Doctors
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/doctors?page=1&limit=10&search=&specialization=&sortBy=createdAt&sortOrder=desc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 10
+  ~search: Sarah
+  ~specialization: Cardiology
+  ~startDate: 2026-01-01
+  ~endDate: 2026-12-31
+  ~sortBy: createdAt
+  ~sortOrder: desc
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data.length > 0) {
+    bru.setEnvVar("doctorId", res.body.data[0]._id);
+  }
+}
+
+tests {
+  test("List returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has meta pagination", function() {
+    const meta = res.getBody().meta;
+    expect(meta).to.have.property('page');
+    expect(meta).to.have.property('limit');
+    expect(meta).to.have.property('total');
+  });
+}
+

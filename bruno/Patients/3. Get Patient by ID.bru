@@ -1,0 +1,27 @@
+meta {
+  name: Get Patient by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/patients/{{patientId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Get patient by ID returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Patient populated with doctor info", function() {
+    const data = res.getBody().data;
+    expect(data).to.have.property('doctorId');
+  });
+}
+

@@ -1,0 +1,29 @@
+meta {
+  name: Update Doctor
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/doctors/{{doctorId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "hospital": "Princeton-Plainsboro Academic Health System",
+    "phone": "+1 555-9988"
+  }
+}
+
+tests {
+  test("Update doctor returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

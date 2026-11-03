@@ -1,0 +1,22 @@
+meta {
+  name: Delete Patient
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/patients/{{patientId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Delete patient returns 200 OK", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}
+

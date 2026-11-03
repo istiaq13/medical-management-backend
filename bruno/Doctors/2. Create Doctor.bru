@@ -1,0 +1,38 @@
+meta {
+  name: Create Doctor
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/doctors
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Dr. Gregory House",
+    "specialization": "Diagnostic Medicine",
+    "hospital": "Princeton-Plainsboro Teaching Hospital",
+    "phone": "+1 555-4321",
+    "email": "house.md@princeton.edu"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data._id) {
+    bru.setEnvVar("doctorId", res.body.data._id);
+  }
+}
+
+tests {
+  test("Doctor created with 201 or conflict 409", function() {
+    expect([201, 409]).to.include(res.getStatus());
+  });
+}
+
