@@ -11,20 +11,12 @@ export const createApp = (): Application => {
   // 1. Configure global middlewares
   configureGlobalMiddlewares(app);
 
-  // 2. Root welcome endpoint
+  // 2. Root status endpoint
   app.get('/', (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
-      message: '🩺 Doctor Tracker RESTful API is live and healthy',
+      message: 'Doctor Tracker RESTful API is live and healthy',
       version: '1.0.0',
-      endpoints: {
-        health: '/health',
-        apiBase: '/api/v1',
-        auth: '/api/v1/auth',
-        doctors: '/api/v1/doctors',
-        patients: '/api/v1/patients',
-        dashboard: '/api/v1/dashboard/analytics',
-      },
     });
   });
 
