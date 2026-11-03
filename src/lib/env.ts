@@ -1,15 +1,26 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+/**
+ * Validates and retrieves required environment variables without hardcoded fallbacks.
+ * Throws a descriptive error on boot if any essential secret is missing.
+ */
+const getRequiredEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value || value.trim() === '') {
+    throw new Error(`[Configuration Error] Missing required environment variable: ${key}`);
+  }
+  return value.trim();
+};
+
 export const ENV = {
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 5000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/doctor_tracker',
-  JWT_SECRET: process.env.JWT_SECRET || 'doctor_tracker_super_secure_jwt_secret_key_2026',
+  MONGODB_URI: getRequiredEnv('MONGODB_URI'),
+  JWT_SECRET: getRequiredEnv('JWT_SECRET'),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '8h',
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  ADMIN_NAME: process.env.ADMIN_NAME || 'Super Admin',
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@example.com',
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin@123',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
+  ADMIN_NAME: getRequiredEnv('ADMIN_NAME'),
+  ADMIN_EMAIL: getRequiredEnv('ADMIN_EMAIL'),
+  ADMIN_PASSWORD: getRequiredEnv('ADMIN_PASSWORD'),
 };
-

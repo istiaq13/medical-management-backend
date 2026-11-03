@@ -14,7 +14,7 @@ export class HealthController {
       environment: ENV.NODE_ENV,
       database: {
         status: isDbConnected ? 'connected' : 'disconnected',
-        name: mongoose.connection.name || 'doctor_tracker',
+        name: mongoose.connection.name || 'unknown',
       },
       system: {
         memoryHeapUsedMB: Math.round(memory.heapUsed / 1024 / 1024),
