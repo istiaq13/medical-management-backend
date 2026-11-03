@@ -50,7 +50,7 @@ export async function runMigrations(): Promise<void> {
 
   const migrationsCollection = db.collection(MIGRATIONS_COLLECTION);
   const appliedDocs = await migrationsCollection.find({}).toArray();
-  const appliedIds = new Set(appliedDocs.map((doc) => doc.id));
+  const appliedIds = new Set(appliedDocs.map((doc: any) => doc.id));
 
   const allMigrations = getMigrationFiles();
   const pending = allMigrations.filter((m) => !appliedIds.has(m.id));
