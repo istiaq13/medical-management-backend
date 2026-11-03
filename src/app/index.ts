@@ -11,18 +11,40 @@ export const createApp = (): Application => {
   // 1. Configure global middlewares
   configureGlobalMiddlewares(app);
 
-  // 2. Root Health check route (used by Docker, Kubernetes, AWS, Render probes)
+  // 2. Root welcome endpoint
+  app.get('/', (req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      message: '🩺 Doctor Tracker RESTful API is live and healthy',
+      version: '1.0.0',
+      endpoints: {
+        health: '/health',
+        apiBase: '/api/v1',
+        auth: '/api/v1/auth',
+        doctors: '/api/v1/doctors',
+        patients: '/api/v1/patients',
+        dashboard: '/api/v1/dashboard/analytics',
+      },
+    });
+  });
+
+  // Favicon handler (avoids 404 in browsers)
+  app.get('/favicon.ico', (req: Request, res: Response) => {
+    res.status(204).end();
+  });
+
+  // 3. Health check route (used by Docker, Kubernetes, AWS, Render probes)
   app.get('/health', HealthController.getHealth);
 
-  // 3. API V1 Routes
+  // 4. API V1 Routes
   app.use('/api/v1', apiRouter);
 
-  // 4. Handle 404 Route Not Found
+  // 5. Handle 404 Route Not Found
   app.use((req: Request, res: Response, next: NextFunction) => {
     next(new ApiError(404, `Cannot find ${req.method} ${req.originalUrl} on this server`));
   });
 
-  // 5. Global Error Handler
+  // 6. Global Error Handler
   app.use(errorHandler);
 
   return app;
