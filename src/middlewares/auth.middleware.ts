@@ -23,14 +23,14 @@ export const authenticate = async (
     }
 
     if (!token) {
-      return next(new ApiError(401, 'Authentication token required'));
+      return next(new ApiError(401, 'Unauthenticated'));
     }
 
     const decoded: JwtPayload = verifyToken(token);
 
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
-      return next(new ApiError(401, 'User belonging to this token no longer exists'));
+      return next(new ApiError(401, 'Unauthenticated'));
     }
 
     req.user = user;

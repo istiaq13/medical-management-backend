@@ -32,19 +32,21 @@ export const errorHandler = (
     message = 'Validation failed';
   }
 
-  // Handle JWT errors
-  if (err.name === 'JsonWebTokenError') {
+  // Handle JWT authentication errors
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
     statusCode = 401;
-    message = 'Invalid authentication token';
-  } else if (err.name === 'TokenExpiredError') {
-    statusCode = 401;
-    message = 'Authentication token has expired';
+    message = 'Unauthenticated';
+  }
+
+  // Standardize all 401 responses to "Unauthenticated"
+  if (statusCode === 401) {
+    message = 'Unauthenticated';
   }
 
   return res.status(statusCode).json({
     success: false,
     message,
     ...(errors ? { errors } : {}),
-    ...(ENV.NODE_ENV === 'development' ? { stack: err.stack } : {}),
+    ...(ENV.NODE_ENV === 'development' && statusCode !== 401 ? { stack: err.stack } : {}),
   });
 };
