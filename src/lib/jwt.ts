@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { ENV } from './env';
+import { AUTH_CONFIG } from './constants';
 
 export interface JwtPayload {
   id: string;
@@ -9,11 +10,10 @@ export interface JwtPayload {
 
 export const signToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, ENV.JWT_SECRET, {
-    expiresIn: ENV.JWT_EXPIRES_IN as any,
+    expiresIn: AUTH_CONFIG.TOKEN_EXPIRY,
   });
 };
 
 export const verifyToken = (token: string): JwtPayload => {
   return jwt.verify(token, ENV.JWT_SECRET) as JwtPayload;
 };
-

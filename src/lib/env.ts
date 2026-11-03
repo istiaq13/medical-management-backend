@@ -18,7 +18,6 @@ export const ENV = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   MONGODB_URI: getRequiredEnv('MONGODB_URI'),
   JWT_SECRET: getRequiredEnv('JWT_SECRET'),
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '8h',
   CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
   ADMIN_NAME: getRequiredEnv('ADMIN_NAME'),
   ADMIN_EMAIL: getRequiredEnv('ADMIN_EMAIL'),
