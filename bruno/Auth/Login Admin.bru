@@ -19,7 +19,8 @@ body:json {
 
 script:post-response {
   if (res.body && res.body.data && res.body.data.token) {
-    bru.setEnvVar("token", res.body.data.token);
+    // In-memory runtime variable: automatically vanishes when Bruno is closed
+    bru.setVar("token", res.body.data.token);
   }
 }
 
