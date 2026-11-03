@@ -1,0 +1,27 @@
+meta {
+  name: Get Role by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/roles/{{roleId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Get role by ID returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Role has name and permissions", function() {
+    const data = res.getBody().data;
+    expect(data).to.have.property('name');
+    expect(data).to.have.property('permissions');
+  });
+}

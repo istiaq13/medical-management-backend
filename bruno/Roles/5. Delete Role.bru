@@ -1,0 +1,21 @@
+meta {
+  name: Delete Role
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/roles/{{roleId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Delete role returns 200 OK or 400 Bad Request", function() {
+    expect([200, 400, 404]).to.include(res.getStatus());
+  });
+}

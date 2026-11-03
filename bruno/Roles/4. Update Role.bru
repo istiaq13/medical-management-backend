@@ -1,0 +1,28 @@
+meta {
+  name: Update Role
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/roles/{{roleId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "description": "Updated medical role permissions",
+    "permissions": ["view:patients", "update:patient_vitals", "view:doctors"]
+  }
+}
+
+tests {
+  test("Update role returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

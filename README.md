@@ -231,6 +231,15 @@ All protected endpoints require the header: `Authorization: Bearer <token>`
 * `conditionDistribution`: Patient counts grouped by medical condition (for pie/doughnut charts).
 * `specializationDistribution`: Doctor counts grouped by specialization.
 
+### 5. Roles & RBAC Management (`/api/v1/roles`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/roles` | List all system & custom roles | **Admin** |
+| `POST` | `/api/v1/roles` | Create a new custom role | **Admin** |
+| `GET` | `/api/v1/roles/:id` | Get single role details | **Admin** |
+| `PUT` | `/api/v1/roles/:id` | Update role description & permissions | **Admin** |
+| `DELETE` | `/api/v1/roles/:id` | Delete custom role (system roles protected) | **Admin** |
+
 ---
 
 ## ⚡ Performance & Query Optimizations

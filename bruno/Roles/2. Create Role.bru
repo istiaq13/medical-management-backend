@@ -1,0 +1,35 @@
+meta {
+  name: Create Role
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/roles
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "NURSE",
+    "description": "Registered nurse with access to patient vitals",
+    "permissions": ["view:patients", "update:patient_vitals"]
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.data && res.body.data._id) {
+    bru.setEnvVar("roleId", res.body.data._id);
+  }
+}
+
+tests {
+  test("Create role returns 201 Created or 409 Conflict", function() {
+    expect([201, 409]).to.include(res.getStatus());
+  });
+}
