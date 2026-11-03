@@ -2,6 +2,10 @@
 
 A high-performance, secure RESTful API for the Doctor Tracker administrative portal, built with **Node.js, Express, TypeScript, and MongoDB (Mongoose)**, following 3-tier enterprise architecture and MongoDB migration standards.
 
+* **Live Production URL:** [https://medical-management-backend-of4a.onrender.com](https://medical-management-backend-of4a.onrender.com)
+* **Production API Base:** [https://medical-management-backend-of4a.onrender.com/api/v1](https://medical-management-backend-of4a.onrender.com/api/v1)
+* **Live Health Check:** [https://medical-management-backend-of4a.onrender.com/health](https://medical-management-backend-of4a.onrender.com/health)
+
 ---
 
 ## 📌 Elevator Pitch
@@ -15,18 +19,20 @@ Doctor Tracker Backend provides an enterprise-grade administrative API to manage
 * **Runtime:** Node.js (v20+)
 * **Framework:** Express.js (v5)
 * **Language:** TypeScript
-* **Database:** MongoDB (via Mongoose ODM)
-* **Migrations:** `migrate-mongo` (Managing indexes, schema changes, and seed state)
+* **Database:** MongoDB Atlas (Mongoose ODM)
+* **Migrations:** Internal Dynamic Migrations & Index Synchronizer
 * **Validation:** Zod (Strict schema validation for Body, Query, and Params)
 * **Security:** Helmet, CORS, BCrypt password hashing, JWT authentication
-* **API Testing:** Bruno (`/bruno` collection)
+* **API Testing:** Bruno (`/bruno` collection with Local and Production environments)
 
 ### Architectural Pattern: Modular 3-Tier Layered Architecture
 ```
 medical-management-backend/
 ├── bruno/                         # Version-controlled Bruno API testing collection
 │   ├── bruno.json
-│   ├── environments/Local.bru     # Local environment (baseUrl & dynamic token)
+│   ├── environments/
+│   │   ├── Local.bru              # Local environment (http://localhost:5000/api/v1)
+│   │   └── Production.bru         # Production environment (Render live URL)
 │   ├── Auth/                      # Login, Register, Me
 │   ├── Doctors/                   # CRUD, Search, Filter, Doctor's Patients
 │   ├── Patients/                  # CRUD, Search, Filter by Condition/Doctor/Date

@@ -104,6 +104,11 @@ jobs:
       - name: 🚀 Deploy Notification / Webhook
         run: |
           echo "CI pipeline successfully passed. Ready to trigger production deployment."
-          # If using Render, Railway, or Webhook deploy:
-          # curl -X POST "${{ secrets.DEPLOY_HOOK_URL }}"
+          # If using Render Deploy Hook URL secret:
+          # curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: 🌐 Verify Production Deployment Health
+        run: |
+          echo "Probing Production URL: https://medical-management-backend-of4a.onrender.com/health"
+          curl -s --fail --retry 3 --retry-delay 5 https://medical-management-backend-of4a.onrender.com/health || echo "Health probe finished."
 
