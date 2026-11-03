@@ -25,3 +25,4 @@ router
   .delete(RoleController.deleteRole);
 
 export default router;
+
