@@ -4,6 +4,7 @@ import doctorRoutes from './doctor.routes';
 import patientRoutes from './patient.routes';
 import dashboardRoutes from './dashboard.routes';
 import roleRoutes from './role.routes';
+import userRoutes from './user.routes';
 import { HealthController } from '../../controllers/health.controller';
 
 const apiRouter = Router();
@@ -12,6 +13,7 @@ const apiRouter = Router();
 apiRouter.get('/health', HealthController.getHealth);
 
 apiRouter.use('/auth', authRoutes);
+apiRouter.use('/users', userRoutes);
 apiRouter.use('/doctors', doctorRoutes);
 apiRouter.use('/patients', patientRoutes);
 apiRouter.use('/dashboard', dashboardRoutes);

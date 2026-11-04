@@ -31,5 +31,44 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const users = await AuthService.getAllUsers();
+      return ApiResponse.success(res, users, 'Users retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getUserById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const user = await AuthService.getUserById(id);
+      return ApiResponse.success(res, user, 'User retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const user = await AuthService.updateUser(id, req.body);
+      return ApiResponse.success(res, user, 'User updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = await AuthService.deleteUser(id);
+      return ApiResponse.success(res, result, 'User deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 

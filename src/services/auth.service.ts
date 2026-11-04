@@ -63,5 +63,51 @@ export class AuthService {
     }
     return user;
   }
+
+  static async getAllUsers() {
+    return await User.find().select('-password').sort({ createdAt: -1 });
+  }
+
+  static async getUserById(id: string) {
+    const user = await User.findById(id).select('-password');
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    return user;
+  }
+
+  static async updateUser(
+    id: string,
+    data: { name?: string; email?: string; password?: string; role?: string }
+  ) {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    if (data.name) user.name = data.name;
+    if (data.email) {
+      const existing = await User.findOne({ email: data.email, _id: { $ne: id } });
+      if (existing) {
+        throw new ApiError(409, 'User with this email already exists');
+      }
+      user.email = data.email;
+    }
+    if (data.role) user.role = data.role;
+    if (data.password && data.password.trim().length >= 6) {
+      user.password = data.password;
+    }
+
+    await user.save();
+    return await User.findById(id).select('-password');
+  }
+
+  static async deleteUser(id: string) {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    return { message: 'User deleted successfully' };
+  }
 }
 
