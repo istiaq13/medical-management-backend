@@ -15,14 +15,27 @@ export const errorHandler = (
   // Handle Mongoose CastError (invalid ObjectId)
   if (err.name === 'CastError') {
     statusCode = 400;
-    message = `Invalid resource identifier: ${err.value}`;
+    message = `Invalid resource identifier format: ${err.value}`;
   }
 
   // Handle Mongoose duplicate key error (11000)
   if (err.code === 11000) {
     statusCode = 409;
     const field = Object.keys(err.keyValue || {})[0] || 'field';
-    message = `A record with this ${field} already exists.`;
+    const value = err.keyValue ? err.keyValue[field] : '';
+    message = `A record with this ${field} "${value}" already exists.`;
+  }
+
+  // Handle JSON Syntax Error (e.g. malformed body payload)
+  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400 && 'body' in err) {
+    statusCode = 400;
+    message = 'Malformed JSON payload in request body';
+  }
+
+  // Handle Multer/Upload Errors (e.g. File too large)
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    statusCode = 413;
+    message = 'Uploaded file exceeds the maximum allowed size limit';
   }
 
   // Handle Mongoose ValidationError
@@ -35,12 +48,13 @@ export const errorHandler = (
   // Handle JWT authentication errors
   if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
     statusCode = 401;
-    message = 'Unauthenticated';
+    message = 'Your session has expired. Please sign in again.';
   }
 
-  // Standardize all 401 responses to "Unauthenticated"
-  if (statusCode === 401) {
-    message = 'Unauthenticated';
+  // Preserve explicit authentication messages (like "Invalid email or password")
+  // Only fallback to "Unauthenticated" if no specific message was set
+  if (statusCode === 401 && (!message || message === 'Internal Server Error')) {
+    message = 'Authentication required. Please sign in.';
   }
 
   return res.status(statusCode).json({
