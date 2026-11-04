@@ -10,7 +10,7 @@ A high-performance, secure RESTful API for the Doctor Tracker administrative por
 
 ## 📌 Elevator Pitch
 
-Doctor Tracker Backend provides an enterprise-grade administrative API to manage healthcare practitioners and patient records. It features JWT-based role authentication, dynamic MongoDB schema and index migrations via `migrate-mongo`, query-optimized searching, multi-criteria filtering, pagination, and real-time analytical aggregations for administrative reporting.
+Doctor Tracker Backend provides an enterprise-grade administrative API to manage healthcare practitioners and patient records. It features JWT-based role authentication, dynamic MongoDB schema and index migrations, query-optimized regex search, multi-criteria filtering, server-side pagination, real-time analytics aggregations, and standardized human-readable error handling.
 
 ---
 
@@ -22,7 +22,7 @@ Doctor Tracker Backend provides an enterprise-grade administrative API to manage
 * **Database:** MongoDB Atlas (Mongoose ODM)
 * **Migrations:** Internal Dynamic Migrations & Index Synchronizer
 * **Validation:** Zod (Strict schema validation for Body, Query, and Params)
-* **Security:** Helmet, CORS, BCrypt password hashing, JWT authentication
+* **Security:** Helmet, CORS, BCrypt password hashing (10 salt rounds), JWT authentication (8h TTL)
 * **API Testing:** Bruno (`/bruno` collection with Local and Production environments)
 
 ### Architectural Pattern: Modular 3-Tier Layered Architecture
@@ -38,20 +38,24 @@ medical-management-backend/
 │   ├── Patients/                  # CRUD, Search, Filter by Condition/Doctor/Date
 │   ├── Dashboard/                 # Analytical aggregations
 │   └── Health/                    # Health check endpoint
-├── migrations/                    # migrate-mongo migration scripts
-│   └── 20261103000001-init-indexes-and-admin.js
 ├── src/
 │   ├── app/                      # Express app initialization & API routes
 │   │   ├── routes/
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── doctor.routes.ts
+│   │   │   ├── patient.routes.ts
+│   │   │   ├── dashboard.routes.ts
+│   │   │   └── user.routes.ts
 │   │   └── index.ts
 │   ├── controllers/              # HTTP request & response handlers
 │   │   ├── auth.controller.ts
 │   │   ├── doctor.controller.ts
 │   │   ├── patient.controller.ts
-│   │   └── dashboard.controller.ts
-│   ├── database/                 # Connection management & seed script
+│   │   ├── dashboard.controller.ts
+│   │   └── health.controller.ts
+│   ├── database/                 # Connection management, seeds & dynamic migrations
 │   │   ├── connection.ts
-│   │   └── seed.ts
+│   │   └── seeders/
 │   ├── helpers/                  # ApiResponse, ApiError, pagination helpers
 │   │   ├── api-response.ts
 │   │   ├── api-error.ts
@@ -62,13 +66,12 @@ medical-management-backend/
 │   ├── middlewares/              # JWT Auth, Zod Validation, Centralized Error Handling
 │   │   ├── auth.middleware.ts
 │   │   ├── validate.middleware.ts
-│   │   └── error.middleware.ts
-│   ├── models/                   # Mongoose schemas & models with indexing
+│   │   ├── error.middleware.ts
+│   │   └── rate-limit.middleware.ts
+│   ├── models/                   # Mongoose schemas & models with compound indexing
 │   │   ├── user.model.ts
 │   │   ├── doctor.model.ts
 │   │   └── patient.model.ts
-│   ├── provider/                 # DatabaseProvider singleton
-│   │   └── database.provider.ts
 │   ├── services/                 # Business logic & MongoDB aggregation pipelines
 │   │   ├── auth.service.ts
 │   │   ├── doctor.service.ts
@@ -91,7 +94,7 @@ medical-management-backend/
 
 ### 1. Prerequisites
 * Node.js (v18+)
-* MongoDB running locally (`mongodb://localhost:27017`) or a MongoDB Atlas URI
+* MongoDB running locally (`mongodb://localhost:27017/doctor_tracker`) or a MongoDB Atlas URI
 
 ### 2. Install Dependencies
 ```bash
@@ -99,187 +102,67 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Copy the `.env.example` to `.env`:
+Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
-Ensure your `MONGODB_URI` points to your MongoDB instance:
+
+Ensure `.env` contains:
 ```env
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/doctor_tracker
-JWT_SECRET=doctor_tracker_super_secure_jwt_secret_key_2026
-JWT_EXPIRES_IN=7d
+JWT_SECRET=super_secret_jwt_key_change_in_production_min32chars
+JWT_EXPIRES_IN=8h
 CORS_ORIGIN=http://localhost:3000
-
-ADMIN_NAME=Super Admin
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=Admin@123
 ```
 
----
-
-## 📦 Database Migrations (Dynamic & Timestamped)
-
-The project includes a robust, zero-dependency migration engine in [`src/database/migrations/`](src/database/migrations).
-
-* **Generate Migration Dynamically:**
-  Creates a timestamped migration file (`YYYYMMDDHHmmss_<name>.ts`) with boilerplate `up(db)` and `down(db)` functions:
-  ```bash
-  npm run migrate:generate <migration_name>
-  # Example: npm run migrate:generate add_doctor_awards
-  ```
-
-* **Run Migrations (Forward):**
-  Discovers all timestamped migrations, tracks executed ones in MongoDB (`_migrations` collection), and runs pending ones in chronological order:
-  ```bash
-  npm run migrate
-  ```
-  *(Note: Migrations also run automatically on server boot via `src/instrumentation.ts`)*
-
-* **Rollback Last Migration:**
-  Reverts the most recently applied migration:
-  ```bash
-  npm run migrate:down
-  ```
-
----
-
-## 🌱 Seeding Demo Data
-
-To populate the database with realistic doctors and patients across historical dates for testing charts and pagination:
+### 4. Database Seed (Optional but Recommended)
+Populate doctors, patients, and initial admin accounts:
 ```bash
 npm run seed
 ```
-**Default Admin Credentials:**
-* **Email:** `admin@example.com`
-* **Password:** `Admin@123`
+
+### 5. Run Server
+```bash
+# Development mode (with live reload)
+npm run dev
+
+# Production build & start
+npm run build
+npm start
+```
+The API is available at `http://localhost:5000/api/v1`.
 
 ---
 
-## 🏃 Running the Application
+## 🛡️ Error Handling & Validation Standards
 
-* **Development mode (with hot-reload):**
-  ```bash
-  npm run dev
-  ```
-* **Production Build & Start:**
-  ```bash
-  npm run build
-  npm start
-  ```
-The server will run on `http://localhost:5000`.
+The backend features a unified, strict error handling pipeline in [`src/middlewares/error.middleware.ts`](file:///o:/Code/Testing/Assesement/medical-management-backend/src/middlewares/error.middleware.ts):
+
+* **Readable Authentication Messages**: Preserves explicit error reasons (`"Invalid email or password"`, `"Your session has expired. Please sign in again."`, `"Authentication token missing"`).
+* **Mongoose Duplicate Key Errors (`E11000`)**: Formats duplicate fields cleanly: `A record with this <field> "<value>" already exists.`
+* **CastError Handling**: Converts invalid MongoDB `ObjectId` parameters into a clear `400 Bad Request` format: `Invalid resource identifier format: <value>`.
+* **JSON Syntax Errors**: Intercepts broken JSON bodies and returns `400 Malformed JSON payload in request body`.
+* **Zod Schema Validation**: Formats missing or invalid fields into structured error arrays: `{ errors: [{ field: "email", message: "Invalid email" }] }`.
 
 ---
 
-## 📡 REST API Reference
+## 📊 Performance & Optimization
 
-All protected endpoints require the header: `Authorization: Bearer <token>`
-
-### 1. Authentication (`/api/v1/auth`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/auth/login` | Login with email and password | No |
-| `POST` | `/api/v1/auth/register` | Register new user | No |
-| `GET` | `/api/v1/auth/me` | Fetch authenticated user profile | **Yes** |
-
-### 2. Doctors (`/api/v1/doctors`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/doctors` | List doctors with search, filters & pagination | **Yes** |
-| `POST` | `/api/v1/doctors` | Create a new doctor | **Yes** |
-| `GET` | `/api/v1/doctors/:id` | Get doctor details & patient count | **Yes** |
-| `PUT` | `/api/v1/doctors/:id` | Update doctor information | **Yes** |
-| `DELETE` | `/api/v1/doctors/:id` | Delete doctor and cascade records | **Yes** |
-| `GET` | `/api/v1/doctors/:id/patients` | List all patients under this doctor | **Yes** |
-| `POST` | `/api/v1/doctors/:id/patients` | Add a patient under this doctor | **Yes** |
-| `DELETE` | `/api/v1/doctors/:id/patients/:patientId` | Remove patient from doctor | **Yes** |
-
-**Query Parameters for `GET /api/v1/doctors`:**
-* `search`: Searches across name, specialization, hospital, email.
-* `specialization`: Filter by medical specialization (e.g. `Cardiology`).
-* `hospital`: Filter by hospital name.
-* `startDate` & `endDate`: Date range filter (ISO date format).
-* `page` (default: 1), `limit` (default: 10), `sortBy` (default: `createdAt`), `sortOrder` (`asc` / `desc`).
-
-### 3. Patients (`/api/v1/patients`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/patients` | List patients with search, condition filter & pagination | **Yes** |
-| `POST` | `/api/v1/patients` | Create a new patient | **Yes** |
-| `GET` | `/api/v1/patients/:id` | Get patient details (populated with doctor info) | **Yes** |
-| `PUT` | `/api/v1/patients/:id` | Update patient record | **Yes** |
-| `DELETE` | `/api/v1/patients/:id` | Delete patient | **Yes** |
-
-**Query Parameters for `GET /api/v1/patients`:**
-* `search`: Searches across name, phone, email, condition.
-* `condition`: Filter by condition (e.g. `Hypertension`, `Asthma`).
-* `gender`: `MALE`, `FEMALE`, or `OTHER`.
-* `doctorId`: Filter patients assigned to a specific doctor.
-* `startDate` & `endDate`: Date range filter.
-* `page`, `limit`, `sortBy`, `sortOrder`.
-
-### 4. Dashboard & Analytics (`/api/v1/dashboard`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/dashboard/analytics` | Aggregated analytics for dashboard charts | **Yes** |
-
-**Returns:**
-* `summary`: `totalDoctors`, `totalPatients`, `averagePatientsPerDoctor`.
-* `patientsPerDoctor`: Top doctors with their active patient counts.
-* `dateBasedStats`: Historical monthly patient intake for trend charts.
-* `conditionDistribution`: Patient counts grouped by medical condition (for pie/doughnut charts).
-* `specializationDistribution`: Doctor counts grouped by specialization.
-
-### 5. Roles & RBAC Management (`/api/v1/roles`)
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/roles` | List all system & custom roles | **Admin** |
-| `POST` | `/api/v1/roles` | Create a new custom role | **Admin** |
-| `GET` | `/api/v1/roles/:id` | Get single role details | **Admin** |
-| `PUT` | `/api/v1/roles/:id` | Update role description & permissions | **Admin** |
-| `DELETE` | `/api/v1/roles/:id` | Delete custom role (system roles protected) | **Admin** |
+1. **Compound Indexing**:
+   - `Doctor`: `{ name: 'text', specialization: 1, email: 1, createdAt: -1 }`
+   - `Patient`: `{ name: 'text', doctorId: 1, condition: 1, createdAt: -1 }`
+2. **MongoDB Aggregation Pipelines**:
+   - Doctor queries utilize a single `$facet` pipeline with `$lookup` to simultaneously return the paginated doctor list and real-time patient count without N+1 query bottlenecks.
+   - Dashboard analytics aggregate total patients, doctors, workload ratios, monthly registration trends, and diagnosis groupings in real-time.
+3. **Multi-field Regex Search**:
+   - Searches across multiple fields (`name`, `specialization`, `hospital`, `email`, `condition`, `phone`) using case-insensitive RegExp patterns.
 
 ---
 
-## ⚡ Performance & Query Optimizations
+## 🔑 Default Admin Account
 
-1. **MongoDB Indexing:**
-   * Text index on `{ name: 'text', specialization: 'text', hospital: 'text' }` for search.
-   * Compound index on `{ doctorId: 1, createdAt: -1 }` for doctor-patient queries.
-   * B-tree index on `{ createdAt: -1 }` for date-wise sorting and filtering.
-2. **`.lean()` Execution:**
-   * Read queries use `.lean()` to bypass Mongoose document hydration, cutting memory usage and query latency by over 50%.
-3. **MongoDB Aggregation Pipelines:**
-   * Single-trip `$facet` and `$lookup` aggregations compute paginated results, total counts, and patient relations simultaneously.
-   * Dashboard analytics use `$group` and `$concat` pipelines directly in the database engine.
-
----
-
-## 🧪 Testing with Bruno
-
-The repository includes a complete **Bruno collection** in the `bruno/` directory:
-
-1. Open **Bruno**.
-2. Click **Open Collection** and select the `medical-management-backend/bruno` folder.
-3. Select the **Local** environment (`Local.bru`).
-4. Execute `Auth > Login Admin`:
-   * The post-response script automatically captures the returned JWT token and stores it in the `token` variable.
-5. All subsequent requests in `Doctors`, `Patients`, and `Dashboard` automatically use the `{{token}}` bearer authentication!
-
----
-
-## 🔄 CI/CD Pipeline (GitHub Actions)
-
-A production-ready CI/CD pipeline is configured in [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml):
-* **Automated on:** Push & PR to `main`, `master`, and `dev` branches.
-* **Service Container:** Spins up an isolated MongoDB 7.0 container in the runner.
-* **Pipeline Stages:**
-  1. Dependencies installation with cache verification (`npm ci`).
-  2. Strict TypeScript type-checking & compile (`npm run build`).
-  3. Dynamic database migration verification against live MongoDB container (`npm run migrate`).
-  4. Database seeding verification (`npm run seed`).
-  5. Live background server start and `/health` verification.
-  6. Automated deployment stage on `main` branch.
-
-
+* **Email**: `admin@example.com`
+* **Password**: `Admin@123`
+*(Auto-created during migration / database seed)*
