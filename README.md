@@ -1,6 +1,6 @@
-# Doctor Tracker – Backend API
+# Doctor Tracker – Backend RESTful API
 
-A high-performance, secure RESTful API for the Doctor Tracker administrative portal, built with **Node.js, Express, TypeScript, and MongoDB (Mongoose)**, following 3-tier enterprise architecture and MongoDB migration standards.
+A high-performance, secure RESTful API for the Doctor Tracker administrative portal, built with **Node.js, Express, TypeScript, and MongoDB (Mongoose)**, following 3-tier enterprise architecture and MongoDB indexing standards.
 
 * **Live Production URL:** [https://medical-management-backend-of4a.onrender.com](https://medical-management-backend-of4a.onrender.com)
 * **Production API Base:** [https://medical-management-backend-of4a.onrender.com/api/v1](https://medical-management-backend-of4a.onrender.com/api/v1)
@@ -20,7 +20,6 @@ Doctor Tracker Backend provides an enterprise-grade administrative API to manage
 * **Framework:** Express.js (v5)
 * **Language:** TypeScript
 * **Database:** MongoDB Atlas (Mongoose ODM)
-* **Migrations:** Internal Dynamic Migrations & Index Synchronizer
 * **Validation:** Zod (Strict schema validation for Body, Query, and Params)
 * **Security:** Helmet, CORS, BCrypt password hashing (10 salt rounds), JWT authentication (8h TTL)
 * **API Testing:** Bruno (`/bruno` collection with Local and Production environments)
@@ -158,11 +157,3 @@ The backend features a unified, strict error handling pipeline in [`src/middlewa
    - Dashboard analytics aggregate total patients, doctors, workload ratios, monthly registration trends, and diagnosis groupings in real-time.
 3. **Multi-field Regex Search**:
    - Searches across multiple fields (`name`, `specialization`, `hospital`, `email`, `condition`, `phone`) using case-insensitive RegExp patterns.
-
----
-
-## 🔑 Default Admin Account
-
-* **Email**: `admin@example.com`
-* **Password**: `Admin@123`
-*(Auto-created during migration / database seed)*
